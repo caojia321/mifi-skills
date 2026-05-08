@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-05-08
+
+### Changed
+
+- `SKILL.md` 中 `metadata.version` 从 `1.0.2` 升级到 `1.0.3`。
+- `CHANGELOG.md` 新增 `[1.0.3]` 版本条目。
+
+### Notes
+
+- `v1.0.2` tag 已推送到远端，但 `gh skill publish --tag v1.0.2` 时因 GitHub Release 创建冲突（"tag v1.0.2 already exists"）无法完成 registry 发布。
+- 由于 gh skill CLI 不提供 `--force` / `--overwrite` / `unpublish`，且删除已存在 tag 受 ruleset 限制，按 SemVer immutable tag 规范，发布一个新的 `v1.0.3` 版本作为正式可用的发布版。
+- 本版本与 `[1.0.2]` 内容等价，仅版本号与 tag 对齐。
+
 ## [1.0.2] - 2026-05-08
 
 ### Changed
@@ -55,7 +68,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 调用的是小米天星金融对外公开的聚合试算接口，不携带任何凭证、token、Cookie。
 - 仅使用 Python 标准库（urllib + json），无第三方 pip 依赖，减少供应链风险。
 
-[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/caojia321/mifi-skills/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/caojia321/mifi-skills/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/caojia321/mifi-skills/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/caojia321/mifi-skills/releases/tag/v1.0.0
