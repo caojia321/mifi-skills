@@ -1,6 +1,12 @@
-﻿---
+---
 name: mi-car-trial
-description: 鏍规嵁鐢ㄦ埛鎻忚堪锛堣溅鍨嬪悕銆佹€昏溅浠枫€侀浠橀噾棰濇垨棣栦粯姣斾緥銆佹湡鏁帮級锛岃皟鐢ㄥ皬绫冲ぉ鏄熼噾铻?af-portal-api 鐨勫厤鐧诲綍鑱氬悎璇曠畻鎺ュ彛锛岃繑鍥炴墍鏈夊彲閫変骇鍝佹柟妗堝強姣忎釜鏂规鐨勮瘯绠楃粨鏋溿€傛湰鎶€鑳戒粎閫傜敤浜?*灏忕背姹借溅**锛堝皬绫?SU7 / SU7 Pro / SU7 Max / SU7 Ultra / YU7 绛夌郴鍒楋級锛?*涓嶉€傜敤浜庡皬楣?/ 钄氭潵 / 鐞嗘兂绛夊叾浠栧搧鐗?*銆傝Е鍙戣瘝锛氳瘯绠椼€佽捶娆炬柟妗堛€佽仛鍚堣瘯绠椼€佹垜鎯充拱銆佸皬绫砈U7銆佸皬绫砓U7銆佽喘杞︽柟妗堛€佹湀渚涖€?license: MIT
+description: >-
+  根据用户描述（车型名、总车价、首付金额或首付比例、期数），调用小米天星金融
+  af-portal-api 的免登录聚合试算接口，返回所有可选产品方案及每个方案的试算结果。
+  本技能仅适用于小米汽车（小米 SU7 / SU7 Pro / SU7 Max / SU7 Ultra / YU7 等系列），
+  不适用于小鹏 / 蔚来 / 理想等其他品牌。
+  触发词：试算、贷款方案、聚合试算、我想买、小米SU7、小米YU7、购车方案、月供。
+license: MIT
 compatibility:
   - claude-code
   - opencode
@@ -9,7 +15,7 @@ compatibility:
   - codex
   - gemini
 metadata:
-  author: 澶╂槦鏁扮绉戞妧鏈夐檺鍏徃 (Xiaomi Finance / Airstar Finance)
+  author: 天星数科科技有限公司 (Xiaomi Finance / Airstar Finance)
   version: 1.0.0
   homepage: https://github.com/caojia321/mi-car-trial
   repository: https://github.com/caojia321/mi-car-trial
@@ -21,7 +27,10 @@ metadata:
     - yu7
     - chinese
     - cli
-  external_costs: 鏃犺垂鐢紱璋冪敤灏忕背澶╂槦閲戣瀺鍏紑鑱氬悎璇曠畻鎺ュ彛 https://afs.airstarfinance.net/api/锛屽彲鑳藉彈闄愭祦鎴栨帴鍙ｅ彉鏇村奖鍝嶃€?---
+  external_costs: >-
+    无费用；调用小米天星金融公开聚合试算接口 https://afs.airstarfinance.net/api/ ，
+    可能受限流或接口变更影响。
+---
 
 # Mi Car Trial锛堝皬绫虫苯杞﹁捶娆捐瘯绠楋級
 
