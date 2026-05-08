@@ -30,5 +30,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 调用的是小米天星金融对外公开的聚合试算接口，不携带任何凭证、token、Cookie。
 - 仅使用 Python 标准库（urllib + json），无第三方 pip 依赖，减少供应链风险。
 
-[Unreleased]: https://github.com/caojia321/mi-car-trial/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/caojia321/mi-car-trial/releases/tag/v1.0.0
+[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/caojia321/mifi-skills/releases/tag/v1.0.0

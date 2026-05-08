@@ -21,27 +21,27 @@
 ### 1. 通过 [skills.sh](https://skills.sh)（所有主流 agent host）
 
 ```bash
-npx skills add caojia321/mi-car-trial
+npx skills add caojia321/mifi-skills
 ```
 
 ### 2. 通过 `gh skill`（GitHub CLI ≥ 2.90.0）
 
 ```bash
 gh extension install github/gh-skill
-gh skill install caojia321/mi-car-trial mi-car-trial --agent opencode
+gh skill install caojia321/mifi-skills mi-car-trial --agent opencode
 # 也支持 --agent claude-code / cursor / codex / gemini
 ```
 
 ### 3. 通过 ClawHub
 
 ```bash
-clawhub skill install caojia321/mi-car-trial
+clawhub skill install caojia321/mifi-skills
 ```
 
 ### 4. 手动（适合二次开发）
 
 ```bash
-git clone https://github.com/caojia321/mi-car-trial.git
+git clone https://github.com/caojia321/mifi-skills.git
 # 把 skills/mi-car-trial/ 链接或拷贝到你 agent 的 skills 目录，例如：
 #   ~/.config/opencode/skills/mi-car-trial/
 #   ~/.claude/skills/mi-car-trial/

@@ -17,8 +17,8 @@ compatibility:
 metadata:
   author: 天星数科科技有限公司 (Xiaomi Finance / Airstar Finance)
   version: 1.0.0
-  homepage: https://github.com/caojia321/mi-car-trial
-  repository: https://github.com/caojia321/mi-car-trial
+  homepage: https://github.com/caojia321/mifi-skills
+  repository: https://github.com/caojia321/mifi-skills
   tags:
     - xiaomi
     - finance
