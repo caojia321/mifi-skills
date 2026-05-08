@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.4] - 2026-05-08
+
+### Changed
+
+- `SKILL.md` 中 `metadata.version` 从 `1.0.3` 升级到 `1.0.4`。
+- `CHANGELOG.md` 新增 `[1.0.4]` 版本条目。
+
+### Fixed
+
+- 解决 `v1.0.3` 阶段因本地手动 `git push origin v1.0.3` 提前推送 tag 导致 `gh skill publish --tag v1.0.3` 报 "tag already exists" 的冲突问题。
+- 修正发布工作流：`v1.0.4` 不再手动创建/推送 git tag，改由 `gh skill publish --tag v1.0.4` 自动创建 tag 与 GitHub Release，避免与 registry 发布流程冲突。
+
+### Notes
+
+- 本版本与 `[1.0.3]` 内容等价，仅版本号与发布工作流修正。
+- 正确的发布工作流：先 `git push origin main`（不推 tag），再 `gh skill publish --tag vX.Y.Z` 让 CLI 自行创建 tag + Release。
+
 ## [1.0.3] - 2026-05-08
 
 ### Changed
@@ -68,7 +85,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 调用的是小米天星金融对外公开的聚合试算接口，不携带任何凭证、token、Cookie。
 - 仅使用 Python 标准库（urllib + json），无第三方 pip 依赖，减少供应链风险。
 
-[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.3...HEAD
+[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.4...HEAD
+[1.0.4]: https://github.com/caojia321/mifi-skills/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/caojia321/mifi-skills/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/caojia321/mifi-skills/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/caojia321/mifi-skills/compare/v1.0.0...v1.0.1
