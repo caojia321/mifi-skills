@@ -1,133 +1,170 @@
-﻿# mi-car-trial
+# mi-car-trial
 
-> 灏忕背姹借溅锛圫U7 / YU7 绯诲垪锛夎捶娆捐仛鍚堣瘯绠?Agent Skill
+小米汽车（SU7 / YU7 系列）贷款聚合试算 Agent Skill。
 
-鏍规嵁杞﹀瀷鍚嶃€佹€昏溅浠枫€侀浠橈紙閲戦鎴栨瘮渚嬶級銆佹湡鏁帮紝璋冪敤灏忕背澶╂槦閲戣瀺 `af-portal-api` 鐨勫厤鐧诲綍鑱氬悎璇曠畻鎺ュ彛锛岃繑鍥炴墍鏈夊彲閫変骇鍝佹柟妗堝強姣忎釜鏂规鐨勬湀渚涖€佸埄鐜囥€佹墜缁垂銆佹€诲埄鎭瓑璇曠畻缁撴灉銆?
-- **鍙椾紬**锛氬皬绫虫苯杞︽綔鍦ㄨ溅涓?/ 閿€鍞【闂?/ 閲戣瀺鏂规璇勪及
-- **閫傞厤杞﹀瀷**锛氬皬绫?SU7 / SU7 Pro / SU7 Max / SU7 Ultra / YU7 绯诲垪
-- **涓嶉€傜敤**锛氬皬楣?/ 钄氭潵 / 鐞嗘兂 / 鐗规柉鎷夌瓑鍏朵粬鍝佺墝
+通过自然语言描述（车型名、总车价、首付金额或首付比例、期数），调用小米天星金融 **af-portal-api 免登录聚合试算接口**，自动返回所有可选产品方案及每个方案的试算结果，并给出评分与推荐组合。
+
+> **仅适用于小米汽车**（小米 SU7 / SU7 Pro / SU7 Max / SU7 Ultra / YU7 系列等），**不适用于小鹏 / 蔚来 / 理想** 等其他品牌。
 
 ---
 
-## 鈿狅笍 鍏嶈矗澹版槑
+## 免责声明
 
-- 鏈?Skill 涓?*闈炲畼鏂瑰伐鍏?*锛屼粎渚涚爺绌躲€佷釜浜鸿喘杞︽祴绠椾娇鐢紱鎵€鏈夐噾铻嶆柟妗堜笌鏁版嵁**浠ュ皬绫冲ぉ鏄熼噾铻嶅畼鏂规笭閬擄紙App / 瀹樼綉 / 闂ㄥ簵锛夊叕绀轰负鍑?*銆?- Skill 鐩存帴璋冪敤灏忕背澶╂槦閲戣瀺鍏紑鎺ュ彛 `https://afs.airstarfinance.net/api/`锛?*涓嶄繚璇佹帴鍙ｉ暱鏈熺ǔ瀹?*锛屾帴鍙ｅ彉鏇淬€侀檺娴併€佷笅绾垮潎鍙兘瀵艰嚧 Skill 澶辨晥銆?- 璇曠畻缁撴灉**浠呬负鍙傝€?*锛屾渶缁堟斁娆惧埄鐜囥€佹湡鏁般€侀浠樻瘮渚嬬敱閲戣瀺鏈烘瀯椋庢帶瀹℃壒鍐冲畾銆?- 璇峰嬁灏嗘湰宸ュ叿鐢ㄤ簬瀵瑰閲戣瀺閿€鍞€佷唬瀹㈠喅绛栫瓑鍦烘櫙锛岀敱姝や骇鐢熺殑涓€鍒囧悗鏋滀笌鏈?Skill 浣滆€呮棤鍏炽€?
+- 本 Skill 是社区工具，**非小米集团官方产品**，所有信息以小米汽车 App / 小米天星金融官方渠道为准。
+- 调用的接口为小米天星金融对外公开的聚合试算接口，若被小米关闭、限流或变更，本 Skill 可能停止工作。
+- 试算结果仅供参考，实际利率、费用、审批结果以金融机构审批为准。
+
 ---
 
-## 瀹夎
+## 安装
 
-### 鏂瑰紡 1锛氶€氳繃 skills.sh锛堟帹鑽?Claude Code / OpenCode / Cursor 鐢ㄦ埛锛?
+### 1. 通过 [skills.sh](https://skills.sh)（所有主流 agent host）
+
 ```bash
 npx skills add caojia321/mi-car-trial
 ```
 
-### 鏂瑰紡 2锛氶€氳繃 gh skill锛圙itHub CLI Extension锛?
-瑕佹眰 `gh >= 2.90.0` 骞跺凡瀹夎 `github/gh-skill` 鎵╁睍锛?
+### 2. 通过 `gh skill`（GitHub CLI ≥ 2.90.0）
+
 ```bash
 gh extension install github/gh-skill
 gh skill install caojia321/mi-car-trial mi-car-trial --agent opencode
-# 鍏朵粬 agent 鍙€夛細claude-code | cursor | codex | gemini | antigravity
+# 也支持 --agent claude-code / cursor / codex / gemini
 ```
 
-### 鏂瑰紡 3锛氶€氳繃 ClawHub
+### 3. 通过 ClawHub
 
 ```bash
 clawhub skill install caojia321/mi-car-trial
 ```
 
-### 鏂瑰紡 4锛氭墜鍔ㄥ畨瑁?
+### 4. 手动（适合二次开发）
+
 ```bash
-git clone https://github.com/caojia321/mi-car-trial.git \
-  ~/.config/opencode/skills/mi-car-trial
-# 鎴栨斁鍏?~/.claude/skills/ / ~/.agents/skills/ 瀵瑰簲鐩綍
+git clone https://github.com/caojia321/mi-car-trial.git
+# 把 skills/mi-car-trial/ 链接或拷贝到你 agent 的 skills 目录，例如：
+#   ~/.config/opencode/skills/mi-car-trial/
+#   ~/.claude/skills/mi-car-trial/
 ```
-
-### 鐜瑕佹眰
-
-- Python 3.7+
-- 浠呬娇鐢?Python 鏍囧噯搴擄紙`urllib` + `json`锛夛紝**鏃?pip 渚濊禆**
-- 鍙闂?`https://afs.airstarfinance.net/api`锛堝叕缃戯紝闈炲皬绫冲唴缃戯級
 
 ---
 
-## 浣跨敤
+## 环境要求
 
-瑙﹀彂 Skill 鐨勮嚜鐒惰瑷€鍏抽敭璇嶏細`璇曠畻`銆乣璐锋鏂规`銆乣鑱氬悎璇曠畻`銆乣鎴戞兂涔癭銆乣灏忕背 SU7`銆乣灏忕背 YU7`銆乣璐溅鏂规`銆乣鏈堜緵`銆?
-### 绀轰緥瀵硅瘽
+- **Python 3.7+**，**仅标准库**（`urllib`、`json`），无 pip 依赖
+- 能访问公网域名 `afs.airstarfinance.net`（企业 VPN 可能拦截）
 
-> **鐢ㄦ埛**锛氭垜鎯充拱 SU7 Max锛岄《閰?30 涓囷紝棣栦粯 3 鎴愶紝鍒?36 鏈燂紝甯垜绠椾竴涓嬫湀渚?>
-> **Agent**锛氾紙鑷姩瑙﹀彂 mi-car-trial Skill锛岃緭鍑烘墍鏈夐€傜敤閲戣瀺浜у搧鐨勬湀渚涘姣旇〃锛?
-### CLI 瀛愬懡浠わ紙渚?Agent 璋冪敤锛屼篃鍙嫭绔嬩娇鐢級
+---
 
-Skill 鎻愪緵 6 涓師瀛?CLI 瀛愬懡浠わ紝鍏ュ彛 `python -m scripts.cli <subcommand>`锛?
-| 瀛愬懡浠?| 鐢ㄩ€?|
+## 触发词
+
+`试算`、`贷款方案`、`聚合试算`、`我想买`、`小米 SU7`、`小米 YU7`、`购车方案`、`月供` 等。
+
+Agent 在检测到上述关键词或明显购车试算意图时，自动调用本 Skill。
+
+---
+
+## 使用（CLI 子命令）
+
+所有子命令均通过统一入口 `scripts/cli.py` 调用：
+
+| 子命令 | 说明 |
 |---|---|
-| `terms` | 鍒楀嚭褰撳墠鏀寔鐨勬湡鏁伴€夐」锛?2/24/36/48/60鈥︼級 |
-| `car-models` | 鍒楀嚭鏀寔鐨勮溅鍨嬫竻鍗曪紙SU7 鍚勯厤缃?+ YU7 鍚勯厤缃級 |
-| `match <杞﹀瀷鍚?` | 妯＄硦鍖归厤鐢ㄦ埛杈撳叆 鈫?鏍囧噯杞﹀瀷 ID |
-| `calc-down <鎬讳环> <姣斾緥鎴栭噾棰?` | 璁＄畻棣栦粯閲戦 |
-| `aggregate <杞﹀瀷> <鎬讳环> <棣栦粯> <鏈熸暟>` | 璋冪敤鑱氬悎璇曠畻鎺ュ彛锛岃繑鍥炴墍鏈夊彲閫夋柟妗?|
-| `evaluate <aggregate 杈撳嚭>` | 瀵规柟妗堟帓搴忋€佹寫閫夋帹鑽愮粍鍚堛€佽緭鍑轰汉绫诲彲璇绘憳瑕?|
+| `terms` | 列出当前支持的期数选项（12/24/36/48/60…） |
+| `car-models` | 列出支持的车型清单（SU7 各配置 + YU7 各配置） |
+| `match <车型名>` | 模糊匹配用户输入 → 标准车型 ID |
+| `calc-down <总价> <比例或金额>` | 计算首付金额 |
+| `aggregate <车型> <总价> <首付> <期数>` | 调用聚合试算接口，返回所有可选方案 |
+| `evaluate <aggregate 输出>` | 对方案排序、挑选推荐组合、输出人类可读摘要 |
 
-瀹屾暣鍙傛暟鍙傝€?`scripts/cli.py`銆?
-### 鍏稿瀷璋冪敤閾撅紙Agent 鍐呴儴锛?
-```
-鐢ㄦ埛鑷劧璇█
-  鈫?match (杞﹀瀷褰掍竴鍖?
-  鈫?calc-down (棣栦粯閲戦鎹㈢畻)
-  鈫?aggregate (鑱氬悎璇曠畻 HTTP 璋冪敤)
-  鈫?evaluate (鎵撳垎 & 鎽樿)
-  鈫?杈撳嚭缁欑敤鎴?```
+完整参数参考 `skills/mi-car-trial/scripts/cli.py`。
 
----
-
-## 鐩綍缁撴瀯
+### 典型调用链（Agent 内部）
 
 ```
-mi-car-trial/
-鈹溾攢鈹€ SKILL.md                   # Skill 鍏冧俊鎭?+ 浣跨敤璇存槑锛圓gent 棣栬鏂囦欢锛?鈹溾攢鈹€ README.md                  # 鏈枃浠?鈹溾攢鈹€ LICENSE                    # MIT
-鈹溾攢鈹€ .gitignore
-鈹溾攢鈹€ CHANGELOG.md               # 鐗堟湰璁板綍
-鈹斺攢鈹€ scripts/
-    鈹溾攢鈹€ cli.py                 # 缁熶竴 CLI 鍏ュ彛
-    鈹斺攢鈹€ core/
-        鈹溾攢鈹€ http.py            # 涓?afs.airstarfinance.net 鐨?HTTP 瀹㈡埛绔?        鈹溾攢鈹€ aggregate.py       # 鑱氬悎璇曠畻鎺ュ彛灏佽
-        鈹溾攢鈹€ car_models.py      # 杞﹀瀷娓呭崟 + 妯＄硦鍖归厤
-        鈹溾攢鈹€ terms.py           # 鏈熸暟瀹氫箟
-        鈹溾攢鈹€ money.py           # 棣栦粯閲戦/姣斾緥鎹㈢畻銆侀噾棰濇牸寮忓寲
-        鈹斺攢鈹€ evaluate.py        # 鏂规鎵撳垎涓庢憳瑕?```
+用户自然语言
+  → match (车型归一化)
+  → calc-down (首付金额换算)
+  → aggregate (聚合试算 HTTP 调用)
+  → evaluate (打分 & 摘要)
+  → 输出给用户
+```
+
+### 从 repo 根直接跑示例
+
+```bash
+# 查看车型清单
+python skills/mi-car-trial/scripts/cli.py car-models
+
+# 查看期数
+python skills/mi-car-trial/scripts/cli.py terms
+
+# 聚合试算：SU7 Max 29.99 万、首付 30%、24 期
+python skills/mi-car-trial/scripts/cli.py aggregate "SU7 Max" 299900 0.3 24
+```
 
 ---
 
-## 鏁呴殰鎺掓煡
+## 目录结构
 
-### `HTTPError 403` / 鎺ュ彛琚嫆
-
-鎺ュ彛鍙兘宸叉洿鏂伴鎺х瓥鐣ャ€備紭鍏堜粠 SU7 App 瀹樻柟绔鐜伴棶棰樺苟纭鍏紑鎺ュ彛鏄惁鍙樻洿銆?
-### `ConnectionError` / 璇锋眰瓒呮椂
-
-纭鏈満鍙互 ping / 璁块棶 `afs.airstarfinance.net`銆備釜鍒唬鐞?VPN 浼氭嫤鎴鍩熷悕銆?
-### 杩斿洖鏂规涓虹┖
-
-- 妫€鏌ヨ溅鍨嬫槸鍚﹀湪 `python -m scripts.cli car-models` 娓呭崟涓?- 妫€鏌ユ湡鏁版槸鍚﹀湪 `python -m scripts.cli terms` 鏀寔鑼冨洿
-- 纭棣栦粯姣斾緥鏄惁鍦ㄩ噾铻嶄骇鍝佸悎瑙勫尯闂达紙閫氬父 20%鈥?0%锛?
-### Skill 娌¤ Agent 瑙﹀彂
-
-- 妫€鏌?`SKILL.md` 鐨?`description` 鏄惁鍖呭惈瑙﹀彂璇?- 閲嶅惎 agent host锛圕laude Code / OpenCode 绛夛級璁╁叾閲嶆柊绱㈠紩 skills 鐩綍
-- 纭 Skill 宸插畨瑁呭埌瀵瑰簲 agent 鐨勬壂鎻忚矾寰勶紙`~/.config/opencode/skills/` 鎴?`~/.claude/skills/` 绛夛級
+```
+mi-car-trial/                              # repo 根
+├── SKILL.md                               # （已移到 skills/mi-car-trial/ 下）
+├── README.md                              # 本文件
+├── LICENSE                                # MIT
+├── .gitignore
+├── CHANGELOG.md                           # 版本记录
+└── skills/
+    └── mi-car-trial/
+        ├── SKILL.md                       # Skill 元信息 + 使用说明（Agent 首读文件）
+        └── scripts/
+            ├── cli.py                     # 统一 CLI 入口
+            └── core/
+                ├── http.py                # 与 afs.airstarfinance.net 的 HTTP 客户端
+                ├── aggregate.py           # 聚合试算接口封装
+                ├── car_models.py          # 车型清单 + 模糊匹配
+                ├── terms.py               # 期数定义
+                ├── money.py               # 首付金额/比例换算、金额格式化
+                └── evaluate.py            # 方案打分与摘要
+```
 
 ---
 
-## 璐＄尞
+## 故障排查
 
-娆㈣繋 issue / PR銆傛柊澧炶溅鍨嬫垨閫傞厤鏂颁骇鍝佹椂锛?
-1. 鍦?`scripts/core/car_models.py` 杩藉姞鏉＄洰
-2. 鍦?`scripts/core/terms.py` 纭鏈熸暟
-3. 杩愯 `python -m scripts.cli aggregate ...` 楠岃瘉杩斿洖
-4. 鏇存柊 `CHANGELOG.md`
+### `HTTPError 403` / 接口被拒
+
+接口可能已更新风控策略。优先从 SU7 App 官方端复现问题并确认公开接口是否变更。
+
+### `ConnectionError` / 请求超时
+
+确认本机可以 ping / 访问 `afs.airstarfinance.net`。企业代理 / VPN 可能拦截该域名。
+
+### 返回方案为空
+
+- 检查车型是否在 `python skills/mi-car-trial/scripts/cli.py car-models` 清单中
+- 检查期数是否在 `python skills/mi-car-trial/scripts/cli.py terms` 支持范围
+- 确认首付比例是否在金融产品合规区间（通常 20%–50%）
+
+### Skill 没被 Agent 触发
+
+- 检查 `SKILL.md` 的 `description` 是否包含触发词
+- 重启 agent host（Claude Code / OpenCode 等）让其重新索引 skills 目录
+- 确认 Skill 已安装到对应 agent 的扫描路径（`~/.config/opencode/skills/` 或 `~/.claude/skills/` 等）
+
+---
+
+## 贡献
+
+欢迎 issue / PR。新增车型或适配新产品时：
+
+1. 在 `skills/mi-car-trial/scripts/core/car_models.py` 追加条目
+2. 在 `skills/mi-car-trial/scripts/core/terms.py` 确认期数
+3. 运行 `python skills/mi-car-trial/scripts/cli.py aggregate ...` 验证返回
+4. 更新 `CHANGELOG.md`
 
 ---
 
 ## License
 
-[MIT](./LICENSE) 漏 2026 澶╂槦鏁扮绉戞妧鏈夐檺鍏徃 (Xiaomi Finance / Airstar Finance)
+[MIT](./LICENSE) © 2026 天星数科科技有限公司 (Xiaomi Finance / Airstar Finance)

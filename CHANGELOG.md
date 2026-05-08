@@ -1,15 +1,34 @@
-﻿# Changelog
+# Changelog
 
-鏈」鐩伒寰?[Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/) 瑙勮寖锛屽苟浣跨敤 [Semantic Versioning](https://semver.org/lang/zh-CN/)銆?
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
 ## [Unreleased]
 
 ## [1.0.0] - 2026-05-08
 
+首次公开发布。
+
 ### Added
 
-- 棣栦釜鍏紑鍙戝竷鐗堟湰锛孲kill 姝ｅ紡瀵瑰銆?- `SKILL.md`锛氬畬鏁?YAML frontmatter锛坄name` / `description` / `license` / `compatibility` / `metadata`锛? 浣跨敤璇存槑 + 瑙﹀彂璇嶃€?- `scripts/cli.py`锛氱粺涓€ CLI 鍏ュ彛锛屾彁渚?6 涓師瀛愬瓙鍛戒护锛?  - `terms` 鈥?鍒楀嚭鏀寔鐨勬湡鏁伴€夐」銆?  - `car-models` 鈥?鍒楀嚭鏀寔鐨勮溅鍨嬫竻鍗曪紙SU7 鍚勯厤缃?+ YU7 鍚勯厤缃級銆?  - `match` 鈥?鎶婄敤鎴疯緭鍏ョ殑杞﹀瀷鍚嶆ā绯婂尮閰嶅埌鏍囧噯杞﹀瀷 ID銆?  - `calc-down` 鈥?鏍规嵁鎬讳环 + 姣斾緥/閲戦鎹㈢畻棣栦粯銆?  - `aggregate` 鈥?璋冪敤灏忕背澶╂槦閲戣瀺鑱氬悎璇曠畻鎺ュ彛锛岃繑鍥炴墍鏈夊彲閫夐噾铻嶆柟妗堛€?  - `evaluate` 鈥?瀵规柟妗堟墦鍒嗐€佹寫閫夋帹鑽愮粍鍚堛€佽緭鍑轰汉绫诲彲璇绘憳瑕併€?- `scripts/core/`锛氱函鍑芥暟鏍稿績妯″潡锛坄http` / `aggregate` / `car_models` / `terms` / `money` / `evaluate`锛夈€?- `LICENSE`锛圡IT锛夈€乣README.md`銆乣.gitignore`銆?- 閫傞厤杞﹀瀷锛氬皬绫?SU7 / SU7 Pro / SU7 Max / SU7 Ultra / SU7 Ultra 璧涢亾涓撲笟鏀硅鐗?/ SU7 Ultra 绾藉崥鏍兼灄鐗?/ YU7 / YU7 Pro / YU7 Max / 灏忕背瀹氬埗鐗堛€?- 鍙戝竷娓犻亾锛欸itHub銆乻kills.sh锛堣嚜鍔ㄦ敹褰曪級銆乬h skill锛坄gh skill install`锛夈€丆lawHub锛堝鏍镐笂鏋讹級銆?
+- 完整 `SKILL.md` frontmatter：`name` / `description` / `license` / `compatibility` / `metadata`（author、version、homepage、repository、tags、external_costs）
+- 统一 CLI 入口 `scripts/cli.py`，提供 6 个子命令：`terms` / `car-models` / `match` / `calc-down` / `aggregate` / `evaluate`
+- core 模块拆分：`http.py`（HTTP 客户端）、`aggregate.py`（聚合试算接口）、`car_models.py`（车型清单 + 模糊匹配）、`terms.py`（期数定义）、`money.py`（金额/比例换算）、`evaluate.py`（方案打分与摘要）
+- `LICENSE`（MIT）、`README.md`（定位、免责、4 种安装方式、6 CLI 子命令说明、故障排查）、`.gitignore`（Python + IDE + macOS + Windows + Linux 通用模板）
+- 覆盖 SU7 / SU7 Pro / SU7 Max / SU7 Ultra / YU7 系列的车型匹配清单
+- 支持 4 大发布渠道：skills.sh / ClawHub / GitHub / gh skill
+
+### Changed
+
+- 仓库采用 multi-skill monorepo 布局：`SKILL.md` 与 `scripts/` 迁移至 `skills/mi-car-trial/` 子目录，以符合 `gh skill publish` 的目录名 = `name` 校验。
+
 ### Security / Compliance
 
-- 鏄庣‘澹版槑涓洪潪瀹樻柟宸ュ叿锛屾渶缁堥噾铻嶆柟妗堜互灏忕背澶╂槦閲戣瀺瀹樻柟娓犻亾鍏ず涓哄噯銆?- 浠呰皟鐢ㄥ叕缃戝叕寮€鎺ュ彛 `https://afs.airstarfinance.net/api/`锛屼笉鍖呭惈浠讳綍鍑瘉銆佸憳宸?token 鎴栧唴閮ㄩ厤缃€?- 渚濊禆鑼冨洿闄愬畾 Python 3.7+ 鏍囧噯搴擄紙`urllib` + `json`锛夛紝鏃犵涓夋柟 pip 渚濊禆锛屽畨瑁呴潰鍙楁帶銆?
+- 本 Skill 为非官方社区工具，所有信息以小米汽车 App / 小米天星金融官方渠道为准。
+- 调用的是小米天星金融对外公开的聚合试算接口，不携带任何凭证、token、Cookie。
+- 仅使用 Python 标准库（urllib + json），无第三方 pip 依赖，减少供应链风险。
+
 [Unreleased]: https://github.com/caojia321/mi-car-trial/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/caojia321/mi-car-trial/releases/tag/v1.0.0
