@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-05-08
+
+### Changed
+
+- `SKILL.md` 中 `metadata.version` 从 `1.0.1` 升级到 `1.0.2`，与发布 tag 保持一致。
+- `CHANGELOG.md` 补齐 `[1.0.2]` 版本条目。
+
+### Notes
+
+- `v1.0.1` tag 因受 GitHub tag protection ruleset 保护无法强制移动，故发布一个新的 `v1.0.2` 版本作为正式可用的 repo-rename 发布版。
+- 本版本与 `[1.0.1]` 内容等价，仅版本号与 tag 对齐。
+
 ## [1.0.1] - 2026-05-08
 
 ### Changed
@@ -18,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Migration
 
 - 旧安装命令 `gh skill install caojia321/mi-car-trial mi-car-trial` 仍可使用（GitHub 301 重定向）。
-- 建议改用 `gh skill install caojia321/mifi-skills mi-car-trial --agent opencode --pin v1.0.1`。
+- 建议改用 `gh skill install caojia321/mifi-skills mi-car-trial --agent opencode --pin v1.0.2`。
 
 ## [1.0.0] - 2026-05-08
 
@@ -43,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 调用的是小米天星金融对外公开的聚合试算接口，不携带任何凭证、token、Cookie。
 - 仅使用 Python 标准库（urllib + json），无第三方 pip 依赖，减少供应链风险。
 
-[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.1...HEAD
+[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.2...HEAD
+[1.0.2]: https://github.com/caojia321/mifi-skills/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/caojia321/mifi-skills/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/caojia321/mifi-skills/releases/tag/v1.0.0
