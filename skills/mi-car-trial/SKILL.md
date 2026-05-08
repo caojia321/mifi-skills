@@ -16,7 +16,7 @@ compatibility:
   - gemini
 metadata:
   author: 天星数科科技有限公司 (Xiaomi Finance / Airstar Finance)
-  version: 1.0.0
+  version: 1.0.1
   homepage: https://github.com/caojia321/mifi-skills
   repository: https://github.com/caojia321/mifi-skills
   tags:
