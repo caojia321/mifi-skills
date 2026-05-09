@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.5] - 2026-05-09
+
+### Fixed
+
+- 修复 `skills/mi-car-trial/SKILL.md` 中文正文大面积乱码（源自早期 cp936 误编码落盘，如 "鑱氬悎璇曠畻" / "鎺ュ彛" / "灏忕背" 等），统一修正为正常 UTF-8 中文。
+- 本次仅修正文本编码/字形，不改变任何语义、结构、frontmatter、接口或脚本行为。
+
+### Changed
+
+- `SKILL.md` 中 `metadata.version` 从 `1.0.4` 升级到 `1.0.5`。
+- `CHANGELOG.md` 新增 `[1.0.5]` 版本条目。
+
+### Notes
+
+- 继续遵循 `[1.0.4]` 确立的发布工作流：先 `git push origin main`（不推 tag），再 `gh skill publish --tag v1.0.5` 由 CLI 自动创建 tag + GitHub Release。
+
 ## [1.0.4] - 2026-05-08
 
 ### Changed
@@ -85,7 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 调用的是小米天星金融对外公开的聚合试算接口，不携带任何凭证、token、Cookie。
 - 仅使用 Python 标准库（urllib + json），无第三方 pip 依赖，减少供应链风险。
 
-[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.4...HEAD
+[Unreleased]: https://github.com/caojia321/mifi-skills/compare/v1.0.5...HEAD
+[1.0.5]: https://github.com/caojia321/mifi-skills/compare/v1.0.4...v1.0.5
 [1.0.4]: https://github.com/caojia321/mifi-skills/compare/v1.0.3...v1.0.4
 [1.0.3]: https://github.com/caojia321/mifi-skills/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/caojia321/mifi-skills/compare/v1.0.1...v1.0.2

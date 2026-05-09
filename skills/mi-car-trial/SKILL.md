@@ -16,7 +16,7 @@ compatibility:
   - gemini
 metadata:
   author: 天星数科科技有限公司 (Xiaomi Finance / Airstar Finance)
-  version: 1.0.4
+  version: 1.0.5
   homepage: https://github.com/caojia321/mifi-skills
   repository: https://github.com/caojia321/mifi-skills
   tags:
@@ -32,100 +32,150 @@ metadata:
     可能受限流或接口变更影响。
 ---
 
-# Mi Car Trial锛堝皬绫虫苯杞﹁捶娆捐瘯绠楋級
+# Mi Car Trial（小米汽车贷款试算）
 
-璋冪敤**灏忕背澶╂槦閲戣瀺** 鍏嶇櫥褰曡仛鍚堣瘯绠楁帴鍙ｏ紝鏍规嵁鐢ㄦ埛涓€鍙ヨ瘽闇€姹傦紙濡傘€屾垜鎯充拱涓€杈嗗皬绫?SU7 鏍囧噯鐗堬紝鎬昏溅浠?21.59 涓囷紝棣栦粯 5 涓囷紝鍒?36 鏈熴€嶏級杩斿洖鎵€鏈夊彲鐢ㄤ骇鍝佹柟妗堜笌閫愭柟妗堣瘯绠楃粨鏋溿€?
-> **閫傜敤鑼冨洿**锛氭湰鎶€鑳藉彧瑕嗙洊**灏忕背姹借溅**锛圶iaomi锛夊湪鍞殑 SU7 / SU7 Pro / SU7 Max / SU7 Ultra / SU7 Ultra 璧涢亾涓撲笟鏀硅鐗?/ SU7 Ultra 绾藉崥鏍兼灄鐗?/ YU7 / YU7 Pro / YU7 Max / 灏忕背瀹氬埗鐗堢瓑绯诲垪銆傝嫢鐢ㄦ埛璇㈤棶灏忛箯銆佽敋鏉ャ€佺悊鎯炽€佺壒鏂媺銆佹瘮浜氳开绛夊叾浠栧搧鐗岃溅鍨嬶紝**蹇呴』鏄庣‘鍛婄煡鏈妧鑳戒笉鏀寔**锛屼笉寰楀己琛屾妸鍏朵粬鍝佺墝杞﹀瀷鍚嶉€佽繘 `match` 瀛愬懡浠ゃ€?
-## 鐩綍缁撴瀯
+调用**小米天星金融** 免登录聚合试算接口，根据用户一句话需求（如「我想买一辆小米 SU7 标准版，总车价 21.59 万，首付 5 万，分 36 期」）返回所有可用产品方案与逐方案试算结果。
+
+> **适用范围**：本技能只覆盖**小米汽车**（Xiaomi）在售的 SU7 / SU7 Pro / SU7 Max / SU7 Ultra / SU7 Ultra 赛道专业改装版 / SU7 Ultra 纽博格林版 / YU7 / YU7 Pro / YU7 Max / 小米定制版等系列。若用户询问小鹏、蔚来、理想、特斯拉、比亚迪等其他品牌车型，**必须明确告知本技能不支持**，不得强行把其他品牌车型名送进 `match` 子命令。
+
+## 目录结构
 
 ```text
 mi-car-trial/
   SKILL.md
   scripts/
-    cli.py          # 缁熶竴 CLI 鍏ュ彛锛堟墍鏈夊閮ㄨ皟鐢ㄥ彧璧板畠锛?    core/           # 绾嚱鏁版牳蹇冧笟鍔★紙HTTP銆侀噾棰濇崲绠椼€佽瘎浼般€佽溅鍨嬪尮閰嶁€︼級
+    cli.py          # 统一 CLI 入口（所有外部调用只走它）
+    core/           # 纯函数核心业务（HTTP、金额换算、评估、车型匹配…）
       http.py  money.py  terms.py  car_models.py  aggregate.py  evaluate.py
 ```
 
-CLI 涓?core 鐨勫垎灞傜害瀹氾細
+CLI 与 core 的分层约定：
 
-- `core/*`锛氬彧鎺ュ彈/杩斿洖 Python 瀵硅薄锛屽け璐ユ姏 `MiCarTrialError`锛?*涓嶅仛 print / sys.exit**銆?- `scripts/cli.py`锛氬敮涓€瀵瑰鍙墽琛屽叆鍙ｏ紝璐熻矗鍙傛暟瑙ｆ瀽 + UTF-8 JSON IO + 閫€鍑虹爜銆?- 涓讳細璇?/ 鍏跺畠鑴氭湰 / 鏈潵鐢ㄦ埛鑷繁鐨勫伐鍏凤細**鍙皟 `python scripts/cli.py <瀛愬懡浠?`**锛屼笉鐩存帴 import core銆佷笉鐩存帴鎵撴帴鍙ｃ€?
-## 鏍稿績璁捐鍘熷垯锛氫竴鍒囪绠椾笌鎺ュ彛璋冪敤涓嬫矇鍒?CLI
+- `core/*`：只接受/返回 Python 对象，失败抛 `MiCarTrialError`，**不做 print / sys.exit**。
+- `scripts/cli.py`：唯一对外可执行入口，负责参数解析 + UTF-8 JSON IO + 退出码。
+- 主会话 / 其它脚本 / 未来用户自己的工具：**只调 `python scripts/cli.py <子命令>`**，不直接 import core、不直接打接口。
 
-**鏈妧鑳戒弗鏍肩姝㈠湪涓讳細璇濅腑鍋氫互涓嬩簨鎯?*锛?
-- **浠讳綍鏁板杩愮畻**锛氬崟浣嶆崲绠楋紙鍏?涓囧厓 鈫?鍒嗭級銆侀浠樻瘮渚?鈫?閲戦銆佹湀渚?璐锋閲戦鎺ㄧ畻銆侀浠樺尯闂村垽鏂€佹湡鏁版敮鎸佹牎楠屸€斺€斿叏閮ㄩ€氳繃 CLI 瀹屾垚銆?- **鎵嬪姩缁勮鎴栬В鏋?HTTP 璇锋眰/鍝嶅簲鐨?JSON**锛氫笉瑕佺敤 `Invoke-RestMethod` / `curl` 鐩存帴璋冩帴鍙ｃ€?- **鍑蹇嗗啓鍑烘敮鎸佹湡鏁?*锛氬繀椤绘瘡娆¤繍琛?`cli.py terms`銆?- **鑲夌溂鎵弿 schemes 绛涘彲鐢ㄦ柟妗?*锛氬繀椤昏蛋 `cli.py evaluate` 鎷跨粨鏋勫寲缁撴灉銆?
-涓讳細璇濈殑鑱岃矗鍙湁涓や欢锛?*鈶?鍚戠敤鎴烽棶娓呭弬鏁?鈶?鎸変互涓?"CLI 瀛愬懡浠?鈫?璇?JSON" 鐨勬祦绋嬩覆璧锋潵**銆?
-### CLI 瀛愬懡浠ゆ竻鍗?
-| 瀛愬懡浠?| 鑱岃矗 | 杈撳叆 | 杈撳嚭锛坰tdout锛?|
+## 核心设计原则：一切计算与接口调用下沉到 CLI
+
+**本技能严格禁止在主会话中做以下事情**：
+
+- **任何数学运算**：单位换算（元/万元 ↔ 分）、首付比例 → 金额、月供/贷款金额推算、首付区间判断、期数支持校验——全部通过 CLI 完成。
+- **手动组装或解析 HTTP 请求/响应的 JSON**：不要用 `Invoke-RestMethod` / `curl` 直接调接口。
+- **凭记忆写出支持期数**：必须每次运行 `cli.py terms`。
+- **肉眼扫描 schemes 筛可用方案**：必须走 `cli.py evaluate` 拿结构化结果。
+
+主会话的职责只有两件：**① 向用户问清参数 ② 按以下 "CLI 子命令 → 读 JSON" 的流程串起来**。
+
+### CLI 子命令清单
+
+| 子命令 | 职责 | 输入 | 输出（stdout） |
 |---|---|---|---|
-| `terms` | `GET /supported-terms` | 鏃?| `{"terms":[12,24,36,48,60]}` |
-| `car-models` | `GET /car-models` | 鏃?| `{"cars":[{carModelId,modelName,totalAmount(鍒?,serialId,serialName},...]}` |
-| `match` | `/car-models` + 鍖呭惈鍖归厤锛堝拷鐣ョ┖鏍?澶у皬鍐欙級 | `--name <杞﹀瀷鍚?` | `{"status":"ok"/"multiple"/"none",...}` |
-| `calc-down` | 閲戦/姣斾緥 鈫?鍒?鎹㈢畻 | `--yuan` \| `--wan` \| `--vehicleValue --rate/--percent` | `{"fen":<鍒?}` |
-| `aggregate` | `POST /aggregate` | `--carModelId --vehicleValue --downPaymentAmount --termNo`锛堝叏閮ㄥ垎/鏁存暟锛?| `ProductTrialAggregateVO` 鐨?`data` 瀵硅薄 |
-| `evaluate` | 棣栦粯鑼冨洿 + 鏈熸暟鏀寔 + 杩囨护 + 鍒嗙粍鎺掑簭 | stdin UTF-8 JSON | 鍚?available/downOutOfRange/termUnsupported/both/summary 鐨勭粨鏋?|
+| `terms` | `GET /supported-terms` | 无 | `{"terms":[12,24,36,48,60]}` |
+| `car-models` | `GET /car-models` | 无 | `{"cars":[{carModelId,modelName,totalAmount(分),serialId,serialName},...]}` |
+| `match` | `/car-models` + 包含匹配（忽略空格/大小写） | `--name <车型名>` | `{"status":"ok"/"multiple"/"none",...}` |
+| `calc-down` | 金额/比例 → 分 换算 | `--yuan` \| `--wan` \| `--vehicleValue --rate/--percent` | `{"fen":<分>}` |
+| `aggregate` | `POST /aggregate` | `--carModelId --vehicleValue --downPaymentAmount --termNo`（全部分/整数） | `ProductTrialAggregateVO` 的 `data` 对象 |
+| `evaluate` | 首付范围 + 期数支持 + 过滤 + 分组排序 | stdin UTF-8 JSON | 含 available/downOutOfRange/termUnsupported/both/summary 的结构 |
 
-鎵€鏈?CLI 璋冪敤锛?
-- 鎴愬姛 鈫?exit 0 + stdout 杈撳嚭绱у噾 UTF-8 JSON
-- 澶辫触 鈫?exit != 0 + stderr 鎵撳嵃閿欒锛?*涓ョ浣跨敤浠讳綍鏈湴鍏滃簳鍊肩户缁?*
-- 璺ㄥ钩鍙?Python 3.7+锛堝彧渚濊禆鏍囧噯搴?urllib + json锛夛紝鏃犻渶 pip 瀹夎
+所有 CLI 调用：
 
-## 瑙﹀彂鏉′欢
+- 成功 → exit 0 + stdout 输出紧凑 UTF-8 JSON
+- 失败 → exit != 0 + stderr 打印错误；**严禁使用任何本地兜底值继续**
+- 跨平台 Python 3.7+（只依赖标准库 urllib + json），无需 pip 安装
 
-婊¤冻浠讳竴鍗冲彲瑙﹀彂锛?
-- 鐢ㄦ埛鎻愬埌銆岃瘯绠椼€嶃€岃仛鍚堣瘯绠椼€嶃€岃捶娆炬柟妗堛€嶃€岃喘杞︽柟妗堛€嶃€屾湀渚涖€嶃€屽垎鏈熴€嶏紝**涓?*璇鎸囧悜灏忕背姹借溅
-- 鐢ㄦ埛浠ャ€屾垜鎯充拱涓€杈嗏€﹁溅銆嶃€屾煡涓€涓?xxx 杞︾殑璐锋鏂规銆嶇瓑鍙ュ紡鎻忚堪璐溅鎰忓浘锛屽苟鐐瑰悕灏忕背绯昏溅鍨?- 鐢ㄦ埛鏄庣‘鐐瑰悕**灏忕背**杞﹀瀷锛堝 灏忕背 SU7 / SU7 Ultra / 灏忕背 YU7 绛夛級骞跺笇鏈涗及绠楄捶娆?- 浠呭嚭鐜般€孲U7銆嶃€孻U7銆嶇瓑鍨嬪彿鑰屾湭鍐欏搧鐗屾椂锛?*榛樿瑙嗕负灏忕背**锛堣繖涓や釜鍨嬪彿褰撳墠鍙湁灏忕背鍦ㄥ敭锛夛紱浣嗚嫢鐢ㄦ埛鏄庣‘鍐欍€屽皬楣?SU7銆嶇瓑**閿欒鍝佺墝缁勫悎**锛屽簲鍏堢籂姝ｅ苟纭鍏剁湡瀹炴剰鍥?
-## 杈撳叆鎶藉彇锛堜粠鐢ㄦ埛鑷劧璇█瑙ｆ瀽锛?
-蹇呴』鎶藉彇浠ヤ笅瀛楁锛?
-| 瀛楁 | 蹇呭～ | 璇存槑 |
+## 触发条件
+
+满足任一即可触发：
+
+- 用户提到「试算」「聚合试算」「贷款方案」「购车方案」「月供」「分期」，**且**语境指向小米汽车
+- 用户以「我想买一辆…车」「查一下 xxx 车的贷款方案」等句式描述购车意图，并点名小米系车型
+- 用户明确点名**小米**车型（如 小米 SU7 / SU7 Ultra / 小米 YU7 等）并希望估算贷款
+- 仅出现「SU7」「YU7」等型号而未写品牌时，**默认视为小米**（这两个型号当前只有小米在售）；但若用户明确写「小鹏 SU7」等**错误品牌组合**，应先纠正并确认其真实意图
+
+## 输入抽取（从用户自然语言解析）
+
+必须抽取以下字段：
+
+| 字段 | 必填 | 说明 |
 |---|---|---|
-| `carModelName` | 鏄?| 杞﹀瀷鍚嶏紙濡?"SU7 鏍囧噯鐗?锛夛紝鐢ㄤ簬閫氳繃 `cli.py match` 鍖归厤 `carModelId` |
-| `vehicleValue` | 鍚?| 鎬昏溅浠凤紙**鍒?*锛屾暣鏁帮級銆傜敤鎴锋湭鎻愪緵鏃朵粠 `match` 鐨勫搷搴斿彇 `totalAmount` |
-| `downPaymentAmount` | **鏈€缁堝繀濉?* | 棣栦粯閲戦锛?*鍒?*锛屾暣鏁帮級銆傜敤鎴蜂互姣斾緥/鍏?涓囧厓琛ㄨ揪鏃讹紝璋冪敤 `cli.py calc-down` 鎹㈢畻 |
-| `termNo` | 鏄?| 鍒嗘湡鏈熸暟銆?*浼犳暣鏁帮紙濡?12銆?4銆?6銆?8銆?0锛?*锛屼笉瑕佷紶 `TERM_36` 杩欑瀛楃涓?|
+| `carModelName` | 是 | 车型名（如 "SU7 标准版"），用于通过 `cli.py match` 匹配 `carModelId` |
+| `vehicleValue` | 否 | 总车价（**分**，整数）。用户未提供时从 `match` 的响应取 `totalAmount` |
+| `downPaymentAmount` | **最终必填** | 首付金额（**分**，整数）。用户以比例/元/万元表达时，调用 `cli.py calc-down` 换算 |
+| `termNo` | 是 | 分期期数。**传整数（如 12、24、36、48、60）**，不要传 `TERM_36` 这种字符串 |
 
-### 瑙勫垯
+### 规则
 
-1. **鑱氬悎璇曠畻鎺ュ彛鍙帴鍙楅浠橀噾棰?*锛堝崟浣嶏細鍒嗭級銆傛瘮渚?鍏?涓囧厓涓€寰嬬粡 `cli.py calc-down` 鎹㈢畻涓哄垎鍚庡啀浼犮€?2. **涓嶈鍦ㄤ富浼氳瘽閲屾墜绠?*銆傚嵆渚挎槸"5 涓囧厓 = 5000000 鍒?杩欑鐪嬭捣鏉ョ畝鍗曠殑鎹㈢畻锛屼篃蹇呴』璧?`cli.py calc-down --yuan 50000`锛屼互閬垮厤鍙ｇ畻閿欒鍜屽崟浣嶆贩娣嗐€?3. **鎹㈢畻閫忔槑鎬?*锛欳LI 鎹㈢畻鍚庯紝鍚戠敤鎴风畝瑕佽鏄庯紙渚嬪"鎸?25% 脳 25.35 涓囷紝CLI 璁＄畻棣栦粯 63,375 鍏?锛夛紝閬垮厤鐢ㄦ埛浠ヤ负鎺ュ彛鐩存帴鏀朵簡姣斾緥銆?4. **閲戦鍗曚綅鏄€屽垎銆?*锛欳LI 璇诲啓涓€寰嬬敤鍒嗐€傚睍绀虹粰鐢ㄦ埛鏃跺啀闄や互 100 杞厓銆?5. **鏈熸暟**浼?`int` 鏁板瓧銆傚悗绔?`TermNoEnum` 鐢?`@JsonValue` 搴忓垪鍖栦负鏁板瓧 code锛屼紶 `"TERM_36"` 浼氭姤 `NumberFormatException`銆?6. 鑻ョ敤鎴锋彁渚涖€岃捶娆鹃噾棰濄€嶈€岄潪棣栦粯锛屽憡鐭ユ殏涓嶆敮鎸侊紝璇㈤棶鏀圭敤棣栦粯閲戦鎴栭浠樻瘮渚嬨€?
-### 淇℃伅涓嶅叏鏃讹細闂瓟寮忔敹闆?
-濡傛灉鐢ㄦ埛棣栨杈撳叆缂哄皯浠讳綍蹇呭～瀛楁锛?*涓嶈鍋囪榛樿鍊?*銆?*涓嶈涓€娆￠棶涓€鍫嗛棶棰?*锛屾寜浠ヤ笅椤哄簭閫愰」杩介棶锛堟瘡娆″彧闂?1 涓級锛?
-1. **缂?`carModelName`** 鈫?闂細銆岃闂偍鎯宠瘯绠楀摢娆?*灏忕背姹借溅**锛燂紙濡?灏忕背 SU7 / SU7 Pro / SU7 Max / YU7 / SU7 Ultra 绛夛級銆?2. **缂洪浠?* 鈫?闂細銆岃闂寜棣栦粯閲戦锛堝 5 涓囷級杩樻槸鎸夐浠樻瘮渚嬶紙濡?30%锛夎瘯绠楋紵銆?3. **缂?`termNo`** 鈫?**鍏堣繍琛?* `python scripts/cli.py terms` 鎷垮埌 `terms` 鏁扮粍锛岀劧鍚庢寜杩斿洖椤哄簭鍚戠敤鎴峰睍绀哄€欓€夛細銆岃闂垎鏈熷灏戞湡锛燂紙褰撳墠鏀寔锛歿terms 鎷兼帴锛屽 12 / 24 / 36 / 48 / 60}锛夈€嶃€侰LI 澶辫触锛堥潪 0 閫€鍑猴級鈫?**鍘熸牱鎶ラ敊骞剁粓姝㈡祦绋?*锛屼笉寰楄嚜琛岀寽鏈熸暟銆?4. **涓や釜棣栦粯瀛楁閮界粰浜?*锛堝悓鏃剁粰浜嗛噾棰濆拰姣斾緥锛?鈫?闂細銆屾偍鍚屾椂缁欎簡棣栦粯閲戦鍜岄浠樻瘮渚嬶紝鍙兘浜岄€変竴锛屼繚鐣欏摢涓紵銆?
-姣忔鐢ㄦ埛鍥炵瓟鍚庯紝閲嶆柊妫€鏌ュ墿浣欑己澶卞瓧娈碉細鏈夌己 鈫?缁х画闂紱榻愬叏 鈫?杩涘叆璋冪敤娴佺▼銆?
-`vehicleValue` 濮嬬粓鍙€夛紝涓嶉渶瑕佷富鍔ㄩ棶銆傜己鐪佹椂璧?Step B 鐨?`cli.py match` 鑷姩鎷垮埌 `totalAmount` 鍚庣洿鎺ョ敤銆?
-## 鐜
+1. **聚合试算接口只接受首付金额**（单位：分）。比例/元/万元一律经 `cli.py calc-down` 换算为分后再传。
+2. **不要在主会话里手算**。即便是"5 万元 = 5000000 分"这种看起来简单的换算，也必须走 `cli.py calc-down --yuan 50000`，以避免口算错误和单位混淆。
+3. **换算透明性**：CLI 换算后，向用户简要说明（例如"按 25% × 25.35 万，CLI 计算首付 63,375 元"），避免用户以为接口直接收了比例。
+4. **金额单位是「分」**：CLI 读写一律用分。展示给用户时再除以 100 转元。
+5. **期数**传 `int` 数字。后端 `TermNoEnum` 用 `@JsonValue` 序列化为数字 code，传 `"TERM_36"` 会报 `NumberFormatException`。
+6. 若用户提供「贷款金额」而非首付，告知暂不支持，询问改用首付金额或首付比例。
 
-- **鎵€灞炲叕鍙?*锛氬皬绫冲ぉ鏄熼噾铻嶏紙airstarfinance锛屽皬绫抽泦鍥㈤噾铻嶆澘鍧楋級
-- **Base URL**锛歚https://afs.airstarfinance.net/api`
-- 鎵€鏈夋帴鍙ｅ潎鍏嶇櫥褰曪紙鏃犻渶閴存潈澶达級銆?- 璇ユ帴鍙ｅ彧杩斿洖**灏忕背姹借溅**鐨勮溅鍨嬩笌閲戣瀺鏂规锛屼笉娑夊強鍏朵粬鍝佺墝銆?- CLI 鍐呴儴缁熶竴鐢?UTF-8 缂栬В鐮侊紝涓嶉渶瑕佸湪涓讳細璇濋噷澶勭悊 `Console.OutputEncoding`銆乣chcp 65001` 绛夌粓绔紪鐮侀棶棰樸€?
-## 璋冪敤娴佺▼
+### 信息不全时：问答式收集
 
-> **绾﹀畾**锛氫笅鏂囨墍鏈?`python scripts/cli.py ...` 鍛戒护閮藉湪鏈妧鑳?base directory 涓嬫墽琛屻€傚疄闄呰皟鐢ㄦ椂鐢ㄧ粷瀵硅矾寰?`python <skill-base>/scripts/cli.py ...`銆俉indows 鍙敼鐢?`py scripts/cli.py ...`銆?
-### Step A锛氬噯澶囧弬鏁?
-#### A.1 鑻ョ敤鎴风敤銆岄浠樻瘮渚嬨€嶈〃杈?鈫?鍏堟崲绠椾负閲戦
+如果用户首次输入缺少任何必填字段，**不要假设默认值**、**不要一次问一堆问题**，按以下顺序逐项追问（每次只问 1 个）：
 
-闇€瑕佺煡閬?`vehicleValue`锛堝垎锛夋墠鑳芥崲绠楋紝鍥犳鍏堝仛 Step B 鎷垮埌 `totalAmount` 鍐嶅洖鏉ュ仛 A.1锛涙垨鐩存帴鍦?A.2 涔嬪悗鎵ц銆?
+1. **缺 `carModelName`** → 问：「请问您想试算哪款**小米汽车**？（如 小米 SU7 / SU7 Pro / SU7 Max / YU7 / SU7 Ultra 等）」
+2. **缺首付** → 问：「请问按首付金额（如 5 万）还是按首付比例（如 30%）试算？」
+3. **缺 `termNo`** → **先运行** `python scripts/cli.py terms` 拿到 `terms` 数组，然后按返回顺序向用户展示候选：「请问分期多少期？（当前支持：{terms 拼接，如 12 / 24 / 36 / 48 / 60}）」。CLI 失败（非 0 退出）→ **原样报错并终止流程**，不得自行猜期数。
+4. **两个首付字段都给了**（同时给了金额和比例） → 问：「您同时给了首付金额和首付比例，只能二选一，保留哪个？」
+
+每次用户回答后，重新检查剩余缺失字段：有缺 → 继续问；齐全 → 进入调用流程。
+
+`vehicleValue` 始终可选，不需要主动问。缺省时走 Step B 的 `cli.py match` 自动拿到 `totalAmount` 后直接用。
+
+## 环境
+
+- **所属公司**：小米天星金融（airstarfinance，小米集团金融板块）
+- **Base URL**：`https://afs.airstarfinance.net/api`
+- 所有接口均免登录（无需鉴权头）。
+- 该接口只返回**小米汽车**的车型与金融方案，不涉及其他品牌。
+- CLI 内部统一用 UTF-8 编解码，不需要在主会话里处理 `Console.OutputEncoding`、`chcp 65001` 等终端编码问题。
+
+## 调用流程
+
+> **约定**：下文所有 `python scripts/cli.py ...` 命令都在本技能 base directory 下执行。实际调用时用绝对路径 `python <skill-base>/scripts/cli.py ...`。Windows 可改用 `py scripts/cli.py ...`。
+
+### Step A：准备参数
+
+#### A.1 若用户用「首付比例」表达 → 先换算为金额
+
+需要知道 `vehicleValue`（分）才能换算，因此先做 Step B 拿到 `totalAmount` 再回来做 A.1；或直接在 A.2 之后执行。
+
 ```
-# 姣斾緥锛堢櫨鍒嗘暟锛?python scripts/cli.py calc-down --vehicleValue 21990000 --percent 30
-# 鎴栧皬鏁?python scripts/cli.py calc-down --vehicleValue 21990000 --rate 0.3
-# 杈撳嚭锛歿"fen":6597000}
+# 比例（百分数）
+python scripts/cli.py calc-down --vehicleValue 21990000 --percent 30
+# 或小数
+python scripts/cli.py calc-down --vehicleValue 21990000 --rate 0.3
+# 输出：{"fen":6597000}
 ```
 
-#### A.2 鑻ョ敤鎴风敤銆屽厓 / 涓囧厓銆嶈〃杈鹃噾棰?鈫?鎹㈢畻涓哄垎
+#### A.2 若用户用「元 / 万元」表达金额 → 换算为分
 
 ```
-python scripts/cli.py calc-down --yuan 50000     # 5 涓囧厓 鈫?{"fen":5000000}
-python scripts/cli.py calc-down --wan 21.99      # 21.99 涓囧厓 鈫?{"fen":21990000}
+python scripts/cli.py calc-down --yuan 50000     # 5 万元 → {"fen":5000000}
+python scripts/cli.py calc-down --wan 21.99      # 21.99 万元 → {"fen":21990000}
 ```
 
-### Step B锛氬尮閰嶈溅鍨嬶紙寰楀埌 carModelId 鍜?vehicleValue锛?
+### Step B：匹配车型（得到 carModelId 和 vehicleValue）
+
 ```
-python scripts/cli.py match --name "SU7 鏍囧噯鐗?
+python scripts/cli.py match --name "SU7 标准版"
 ```
 
-CLI 鍐呴儴鑷姩 `GET /car-models` 骞跺仛**蹇界暐绌烘牸/澶у皬鍐欑殑鍖呭惈鍖归厤**銆傚彲鑳界殑杩斿洖锛?
-- `{"status":"ok","car":{carModelId,modelName,totalAmount,...}}` 鈫?鍞竴鍛戒腑锛屽彇鍏?`carModelId` 鍜?`totalAmount`锛堝悗鑰呬綔涓?`vehicleValue`锛夈€?- `{"status":"multiple","candidates":[...]}` 鈫?澶氭潯鍛戒腑锛屽悜鐢ㄦ埛灞曠ず `candidates[].modelName` 璁╁叾鎸戦€夛紱鍐嶇敤 `carModelId` 鐩存帴杩涘叆 Step C锛堟湰娆′細璇濆凡鎸佹湁瀹屾暣鍒楄〃锛屾棤闇€閲嶅鏌ワ級銆?- `{"status":"none","availableModelNames":[...]}` 鈫?闆跺懡涓紝鍛婄煡鐢ㄦ埛骞跺垪鍑?`availableModelNames`銆?
-> 娉ㄦ剰锛氳溅鍨嬪悕涓?`"SU7"` / `"SU7 Pro"` / `"SU7 Max"` / `"SU7 Ultra"` 绛夛紝娌℃湁 `"SU7 鏍囧噯鐗?` 杩欑瀛楁牱銆傜敤鎴疯"鏍囧噯鐗?鏃舵槧灏勫埌 `modelName=="SU7"`锛堟渶鍩虹鐗堟湰锛夈€?>
-> 鐢ㄦ埛鍙銆孲U7銆嶄細鍖归厤鍒板涓紙SU7銆丼U7 Pro銆丼U7 Max銆丼U7 Ultra鈥︹€﹂兘鍖呭惈"SU7"锛夛紝灞炰簬 `status=multiple`锛岄渶瑕佽鐢ㄦ埛杩涗竴姝ユ槑纭€?
-### Step C锛氭彁浜よ仛鍚堣瘯绠?
+CLI 内部自动 `GET /car-models` 并做**忽略空格/大小写的包含匹配**。可能的返回：
+
+- `{"status":"ok","car":{carModelId,modelName,totalAmount,...}}` → 唯一命中，取其 `carModelId` 和 `totalAmount`（后者作为 `vehicleValue`）。
+- `{"status":"multiple","candidates":[...]}` → 多条命中，向用户展示 `candidates[].modelName` 让其挑选；再用 `carModelId` 直接进入 Step C（本次会话已持有完整列表，无需重复查）。
+- `{"status":"none","availableModelNames":[...]}` → 零命中，告知用户并列出 `availableModelNames`。
+
+> 注意：车型名为 `"SU7"` / `"SU7 Pro"` / `"SU7 Max"` / `"SU7 Ultra"` 等，没有 `"SU7 标准版"` 这种字样。用户说"标准版"时映射到 `modelName=="SU7"`（最基础版本）。
+>
+> 用户只说「SU7」会匹配到多个（SU7、SU7 Pro、SU7 Max、SU7 Ultra……都包含"SU7"），属于 `status=multiple`，需要让用户进一步明确。
+
+### Step C：提交聚合试算
+
 ```
 python scripts/cli.py aggregate \
   --carModelId 600046406 \
@@ -134,13 +184,21 @@ python scripts/cli.py aggregate \
   --termNo 36
 ```
 
-stdout 鏄?`ProductTrialAggregateVO` 鐨?`data` 瀵硅薄锛岀粨鏋勮涓嬫枃銆?
-**娉ㄦ剰**锛?
-- **鍙厑璁?`downPaymentAmount`**銆傜姝紶 `downPaymentRate`锛堝嵆渚垮悗绔粨鏋勪綋閲屽彲鑳藉瓨鍦ㄨ瀛楁锛屽湪褰撳墠鐜鐨勮В鏋?鍗曚綅绾﹀畾涓庨鏈熶笉绗︼紝浼氬鑷撮浠樿璇垽涓烘瀬灏忓€硷紝璐锋閲戦寮傚父鏀惧ぇ锛夈€?- `termNo` 蹇呴』鏄?*鏁存暟**锛堝 `36`锛夈€?- 鎵€鏈夐噾棰濆瓧娈靛崟浣嶆槸**鍒?*銆?
-### Step D锛氳瘎浼版柟妗堬紙棣栦粯鑼冨洿 + 鏈熸暟鏀寔 + 杩囨护 + 鎺掑簭锛?
-**绂佹涓讳細璇濊倝鐪奸亶鍘?`schemes[]` 鍋氫互涓嬪垽鏂?*锛氶浠樻槸鍚﹀湪鑼冨洿鍐呫€佹湡鏁版槸鍚︽敮鎸併€乣calculate == null` 鏄惁璇ヨ繃婊ゃ€佹湀渚涙帓搴忊€斺€斿繀椤讳氦缁?`cli.py evaluate`銆?
+stdout 是 `ProductTrialAggregateVO` 的 `data` 对象，结构见下文。
+
+**注意**：
+
+- **只允许 `downPaymentAmount`**。禁止传 `downPaymentRate`（即便后端结构体里可能存在该字段，在当前环境的解析/单位约定与预期不符，会导致首付被误判为极小值，贷款金额异常放大）。
+- `termNo` 必须是**整数**（如 `36`）。
+- 所有金额字段单位是**分**。
+
+### Step D：评估方案（首付范围 + 期数支持 + 过滤 + 排序）
+
+**禁止主会话肉眼遍历 `schemes[]` 做以下判断**：首付是否在范围内、期数是否支持、`calculate == null` 是否该过滤、月供排序——必须交给 `cli.py evaluate`。
+
 ```python
-# 鎺ㄨ崘锛氶€氳繃 Python 杩涚▼绠￠亾璋冪敤锛堣法骞冲彴銆乁TF-8 骞插噣锛?import json, subprocess
+# 推荐：通过 Python 进程管道调用（跨平台、UTF-8 干净）
+import json, subprocess
 
 # 1) POST /aggregate
 agg_raw = subprocess.check_output([
@@ -152,7 +210,8 @@ agg_raw = subprocess.check_output([
 ])
 aggregate = json.loads(agg_raw.decode("utf-8"))
 
-# 2) 浜ょ粰 evaluate 瀛愬懡浠ゅ鐞?payload = json.dumps({
+# 2) 交给 evaluate 子命令处理
+payload = json.dumps({
     "aggregate": aggregate,
     "userDownAmount": 5000000,
     "termNo": 36,
@@ -167,8 +226,9 @@ result = json.loads(result_raw.decode("utf-8"))
 # result.keys() = available / downOutOfRange / termUnsupported / both / filtered / summary
 ```
 
-> **閲嶈**锛氬繀椤荤敤**瀛楄妭娴佺閬?+ 鏄惧紡 UTF-8 瑙ｇ爜**锛堝涓婄ず渚嬶級銆俉indows Python 鐨?`sys.stdin` 榛樿缂栫爜涓嶆槸 UTF-8锛岀洿鎺ヤ紶瀛楃涓茬閬撲細鎶婁腑鏂囩牬鍧忔垚浠ｇ悊瀛楃銆?>
-> 濡傛灉涓€瀹氳鍦?PowerShell / bash 鍛戒护琛岄噷璺戯紝鍙淇濊瘉 `cli.py evaluate` 鐨?stdin 鏄?UTF-8 瀛楄妭娴佸嵆鍙紙CLI 宸插己鍒舵寜 UTF-8 瑙ｇ爜 stdin锛夈€傜ず渚嬶紙bash锛夛細
+> **重要**：必须用**字节流管道 + 显式 UTF-8 解码**（如上示例）。Windows Python 的 `sys.stdin` 默认编码不是 UTF-8，直接传字符串管道会把中文破坏成代理字符。
+>
+> 如果一定要在 PowerShell / bash 命令行里跑，只要保证 `cli.py evaluate` 的 stdin 是 UTF-8 字节流即可（CLI 已强制按 UTF-8 解码 stdin）。示例（bash）：
 >
 > ```bash
 > python scripts/cli.py aggregate --carModelId 600046406 --vehicleValue 21990000 --downPaymentAmount 5000000 --termNo 36 \
@@ -176,7 +236,7 @@ result = json.loads(result_raw.decode("utf-8"))
 >   | python scripts/cli.py evaluate
 > ```
 
-### evaluate 杈撳嚭缁撴瀯
+### evaluate 输出结构
 
 ```json
 {
@@ -191,13 +251,18 @@ result = json.loads(result_raw.decode("utf-8"))
     "termUnsupportedCount": 0,
     "bothCount": 0,
     "filteredCount": 0,
-    "recommended": {"productTypeName":"鏍囧噯浜у搧","customerName":"闄愭椂7骞翠綆鎭疊","monthlyPayment":501677}
+    "recommended": {"productTypeName":"标准产品","customerName":"限时7年低息B","monthlyPayment":501677}
   }
 }
 ```
 
-enriched scheme = 鍘熷 scheme + 涓変釜鏈湴璁＄畻瀛楁锛?- `minAmount` / `maxAmount`锛堝垎锛屽彲鑳戒负 null锛夆€斺€擟LI 鎸?`downInfo.amount` / `downInfo.rate 脳 vehicleValue 梅 10_000_000` 鎺ㄧ畻锛坮ate 鍗曚綅鏄?*鐧句竾鍒嗘瘮**锛歚4600000` = 46%锛?- `downPaymentSupported`锛坆ool锛宒ownInfo 涓?null 鏃惰涓?true锛?- `termSupportedResolved`锛坆ool锛岀患鍚?`termSupported` 瀛楁涓?`supportedTerms` 鍒楄〃锛?
-### ProductTrialAggregateVO 鍘熷缁撴瀯锛堜粎渚涘弬鑰冿紝涓嶉渶瑕佷富浼氳瘽瑙ｆ瀽锛?
+enriched scheme = 原始 scheme + 三个本地计算字段：
+- `minAmount` / `maxAmount`（分，可能为 null）——CLI 按 `downInfo.amount` / `downInfo.rate × vehicleValue ÷ 10_000_000` 推算（rate 单位是**百万分比**：`4600000` = 46%）
+- `downPaymentSupported`（bool，downInfo 为 null 时视为 true）
+- `termSupportedResolved`（bool，综合 `termSupported` 字段与 `supportedTerms` 列表）
+
+### ProductTrialAggregateVO 原始结构（仅供参考，不需要主会话解析）
+
 ```json
 {
   "carModelId": 600046406,
@@ -207,72 +272,97 @@ enriched scheme = 鍘熷 scheme + 涓変釜鏈湴璁＄畻瀛楁锛?- `
   "hasFinancialScheme": true,
   "schemes": [
     {
-      "productTypeName": "鏍囧噯浜у搧",
+      "productTypeName": "标准产品",
       "productSnapshotId": "...",
-      "customerName": "闄愭椂7骞翠綆鎭疉",
-      "description": "棣栦粯9.99涓囧厓璧凤紝骞村寲璐圭巼1.9%",
-      "marketingTag": "浼樻儬",
+      "customerName": "限时7年低息A",
+      "description": "首付9.99万元起，年化费率1.9%",
+      "marketingTag": "优惠",
       "supportedTerms": ["12","24","36","48","60","72","84"],
       "downInfo": {"rate": 4600000, "maxRate": 8500000, "amount": 9990000, "maxAmount": 18691500, "byAmount": true},
       "termSupported": true,
-      "calculate": {"monthlyPayment": 498845, "loanAmount": 16990000, "totalInterest": 968436, ...},
+      "calculate": {"monthlyPayment": 498845, "loanAmount": 16990000, "totalInterest": 968436},
       "calculateError": null
     }
   ]
 }
 ```
 
-鑻?`data.hasFinancialScheme == false` 涓?`schemes == []`锛氬憡鐭ョ敤鎴疯杞﹀瀷褰撳墠鏃犲彲鐢ㄩ噾铻嶆柟妗堛€?
-## 杈撳嚭缁欑敤鎴?
-浠?Markdown 琛ㄦ牸灞曠ず `cli.py evaluate` 杩斿洖鐨?`available + downOutOfRange + termUnsupported + both`锛堟寜璇ラ『搴忓垎缁勶級锛屽叧閿垪锛?
-| 浜у搧鍚?| 绫诲瀷 | 鏈堜緵 | 璐锋閲戦 | 鎬诲埄鎭?| 棣栦粯鏀寔鑼冨洿 | 鐘舵€?| 钀ラ攢鏍囩 |
+若 `data.hasFinancialScheme == false` 且 `schemes == []`：告知用户该车型当前无可用金融方案。
+
+## 输出给用户
+
+以 Markdown 表格展示 `cli.py evaluate` 返回的 `available + downOutOfRange + termUnsupported + both`（按该顺序分组），关键列：
+
+| 产品名 | 类型 | 月供 | 贷款金额 | 总利息 | 首付支持范围 | 状态 | 营销标签 |
 |---|---|---|---|---|---|---|---|
 
-**灞曠ず鏃舵妸鎵€鏈夐噾棰濆瓧娈甸櫎浠?100 杞厓**锛屽繀瑕佹椂鍐嶆崲绠椾负涓囧厓銆備互涓嬫槸**瀛楁绾х殑灞曠ず瑙勫垯**锛屼弗鏍兼寜 evaluate 缁撴灉瀛楁缁勮锛屼笉瑕佹墜鍔ㄤ簩娆¤绠椾换浣曟暟鍊硷細
+**展示时把所有金额字段除以 100 转元**，必要时再换算为万元。以下是**字段级的展示规则**，严格按 evaluate 结果字段组装，不要手动二次计算任何数值：
 
-### 銆岄浠樻敮鎸佽寖鍥淬€嶅垪
+### 「首付支持范围」列
 
-- 鍙?enriched scheme 鐨?`minAmount` / `maxAmount`锛圕LI 宸叉帹绠楀ソ锛屽崟浣嶅垎锛?- 涓ょ闄や互 100 灞曠ず鍏?涓囧厓锛屼緥濡?`3涓?- 15涓嘸
-- `downPaymentSupported == false` 鈫?鍦ㄨ寖鍥村墠鍔?鈿狅笍 骞舵爣绮楋紝渚嬪 `鈿狅笍 **9.99涓?- 18.69涓囷紙褰撳墠棣栦粯 5 涓囦綆浜庝笅闄愶級**`
-- `minAmount == null && maxAmount == null` 鈫?鏄剧ず `鈥擿
+- 取 enriched scheme 的 `minAmount` / `maxAmount`（CLI 已推算好，单位分）
+- 两端除以 100 展示元/万元，例如 `3万 - 15万`
+- `downPaymentSupported == false` → 在范围前加 ⚠️ 并标粗，例如 `⚠️ **9.99万 - 18.69万（当前首付 5 万低于下限）**`
+- `minAmount == null && maxAmount == null` → 显示 `—`
 
-### 銆屾湀渚?/ 璐锋閲戦 / 鎬诲埄鎭€嶅垪
+### 「月供 / 贷款金额 / 总利息」列
 
-- `calculate != null` 鈫?鍒嗗埆鍙?`calculate.monthlyPayment` / `calculate.loanAmount` / `calculate.totalInterest`锛岄櫎浠?100 灞曠ず
-- `calculate == null`锛堝嵆 termUnsupported 鎴?both 鍒嗙粍锛夆啋 杩欎笁鍒楃粺涓€鏄剧ず `鈥擿
+- `calculate != null` → 分别取 `calculate.monthlyPayment` / `calculate.loanAmount` / `calculate.totalInterest`，除以 100 展示
+- `calculate == null`（即 termUnsupported 或 both 分组）→ 这三列统一显示 `—`
 
-### 銆岀姸鎬併€嶅垪
+### 「状态」列
 
-- `available` 鈫?鉁?鍙敤
-- `downOutOfRange` 鈫?鈿狅笍 棣栦粯瓒呴檺
-- `termUnsupported` 鈫?鈿狅笍 鏈熸暟涓嶆敮鎸侊紙鏀寔锛歿supportedTerms 鎷兼帴}锛?- `both` 鈫?鈿狅笍 鏈熸暟涓嶆敮鎸?+ 棣栦粯瓒呴檺
+- `available` → ✅ 可用
+- `downOutOfRange` → ⚠️ 首付超限
+- `termUnsupported` → ⚠️ 期数不支持（支持：{supportedTerms 拼接}）
+- `both` → ⚠️ 期数不支持 + 首付超限
 
-### 琛ㄦ牸涓嬫柟杩藉姞鎻愮ず
+### 表格下方追加提示
 
-- 鑻?`downOutOfRangeCount > 0`锛?  > 鈿狅笍 **浠ヤ笅鏂规褰撳墠棣栦粯涓嶅湪鏀寔鑼冨洿鍐?*锛?  > - {customerName}锛氭敮鎸侀浠?{minAmount/100} - {maxAmount/100} 鍏冿紝褰撳墠棣栦粯 {userDownAmount/100} 鍏?  >
-  > 濡傞渶浣跨敤涓婅堪鏂规锛岃璋冩暣棣栦粯閲戦鑷冲搴斿尯闂淬€?
-- 鑻?`termUnsupportedCount > 0`锛?  > 鈴憋笍 **浠ヤ笅鏂规涓嶆敮鎸佸綋鍓嶆湡鏁帮紙{termNo} 鏈燂級**锛?  > - {customerName}锛氭敮鎸佹湡鏁?{supportedTerms 鎷兼帴}
+- 若 `downOutOfRangeCount > 0`：
+  > ⚠️ **以下方案当前首付不在支持范围内**：
+  > - {customerName}：支持首付 {minAmount/100} - {maxAmount/100} 元，当前首付 {userDownAmount/100} 元
   >
-  > 濡傞渶浣跨敤涓婅堪鏂规锛岃璋冩暣鏈熸暟鑷冲叾鏀寔鑼冨洿鍐呫€?
-- 鎬荤粨锛氥€屽叡 {availableCount} 涓彲鐢ㄦ柟妗堬紙鍏朵腑 {downOutOfRangeCount} 涓洜棣栦粯瓒呴檺闇€璋冩暣锛寋termUnsupportedCount} 涓洜鏈熸暟涓嶆敮鎸侀渶璋冩暣锛夛紝鎺ㄨ崘 {summary.recommended.customerName}锛堟湀渚?{recommended.monthlyPayment/100} 鍏冿級銆嶃€?- 濡傛灉 `availableCount == 0`锛屾寜"棣栦粯/鏈熸暟"寮傚父鏇村鐨勪竴绫荤粰鍑鸿皟鏁村缓璁€?- `filtered` 鍒嗙粍锛坈alculate=null 涓?termSupported=true 鐨勬棤鏄庢樉鍘熷洜澶辫触椤癸級**涓嶄富鍔ㄦ姤缁欑敤鎴?*銆?
-## 閿欒澶勭悊
+  > 如需使用上述方案，请调整首付金额至对应区间。
 
-| 鎯呭喌 | 澶勭悊 |
+- 若 `termUnsupportedCount > 0`：
+  > ⏱️ **以下方案不支持当前期数（{termNo} 期）**：
+  > - {customerName}：支持期数 {supportedTerms 拼接}
+  >
+  > 如需使用上述方案，请调整期数至其支持范围内。
+
+- 总结：「共 {availableCount} 个可用方案（其中 {downOutOfRangeCount} 个因首付超限需调整，{termUnsupportedCount} 个因期数不支持需调整），推荐 {summary.recommended.customerName}（月供 {recommended.monthlyPayment/100} 元）」。
+- 如果 `availableCount == 0`，按"首付/期数"异常更多的一类给出调整建议。
+- `filtered` 分组（calculate=null 且 termSupported=true 的无明显原因失败项）**不主动报给用户**。
+
+## 错误处理
+
+| 情况 | 处理 |
 |---|---|
-| `cli.py match` 杩斿洖 `status=none` | 鍛婄煡鐢ㄦ埛骞跺垪鍑?`availableModelNames` |
-| `cli.py match` 杩斿洖 `status=multiple` | 灞曠ず `candidates[].modelName` 璁╃敤鎴风簿纭寚瀹?|
-| `cli.py terms` / `car-models` / `aggregate` 閫€鍑虹爜 != 0 | 鍘熸牱杞堪 stderr 閿欒骞剁粓姝紱**涓嶅緱浣跨敤浠讳綍鏈湴鍏滃簳鏁版嵁缁х画** |
-| 鐢ㄦ埛鏃㈡病缁欓噾棰濅篃娌＄粰姣斾緥 | 璇㈤棶銆岃闂寜棣栦粯閲戦杩樻槸棣栦粯姣斾緥璇曠畻锛熴€?|
-| 鐢ㄦ埛涓や釜閮界粰浜?| 鍛婄煡鍙兘浜岄€変竴锛涙渶缁堜互閲戦褰㈡€佽皟鐢?`cli.py calc-down` |
-| `aggregate.hasFinancialScheme == false` | 鍛婄煡璇ヨ溅鍨嬪綋鍓嶆棤鍙敤閲戣瀺鏂规 |
-| `cli.py evaluate` 澶辫触 | 杞堪 stderr 閿欒锛涗笉瑕佽倝鐪间唬鏇垮畠瑙ｆ瀽 schemes |
+| `cli.py match` 返回 `status=none` | 告知用户并列出 `availableModelNames` |
+| `cli.py match` 返回 `status=multiple` | 展示 `candidates[].modelName` 让用户精确指定 |
+| `cli.py terms` / `car-models` / `aggregate` 退出码 != 0 | 原样转述 stderr 错误并终止；**不得使用任何本地兜底数据继续** |
+| 用户既没给金额也没给比例 | 询问「请问按首付金额还是首付比例试算？」 |
+| 用户两个都给了 | 告知只能二选一；最终以金额形态调用 `cli.py calc-down` |
+| `aggregate.hasFinancialScheme == false` | 告知该车型当前无可用金融方案 |
+| `cli.py evaluate` 失败 | 转述 stderr 错误；不要肉眼代替它解析 schemes |
 
 ## Safety Rules
 
-- **涓嶈浼€?`carModelId`**锛氬繀椤绘潵鑷?`cli.py match` 鎴?`cli.py car-models` 鍝嶅簲銆?- **涓嶈鍦ㄤ富浼氳瘽鍋氫换浣曟暟瀛﹁繍绠?*锛氫竴鍒囬噾棰?姣斾緥/鏈堜緵/棣栦粯鍖洪棿璁＄畻浜ょ粰 CLI銆傚嵆渚夸綘"涓€鐪煎氨鑳界湅鍑? 5 涓?脳 30% = 1.5 涓囷紝涔熻璧?CLI锛岄伩鍏嶅崟浣嶆悶閿欍€?- **涓嶈鍦ㄤ富浼氳瘽鐩存帴璋?HTTP 鎺ュ彛**锛氫竴鍒?`GET` / `POST` 閫氳繃 `cli.py` 鐨勫瓙鍛戒护銆?- **涓嶈鍑蹇嗗啓鏈熸暟鍒楄〃**锛氭瘡娆￠渶瑕佸€欓€夋湡鏁伴兘杩愯 `cli.py terms`銆?- **涓嶈浣跨敤鍏滃簳鏁版嵁**锛欳LI 澶辫触涓€寰嬪師鏍锋姤閿欑粓姝㈡祦绋嬶紝绂佹鎶?榛樿 [12,24,36,48,60]"涔嬬被鐨勫厹搴曚紶缁欎笅娓搞€?- **鎹㈢畻閫忔槑鎬?*锛氭瘮渚?鈫?閲戦鐨勬崲绠楃粨鏋滆鏄庣ず缁欑敤鎴凤紙濡?鎸?30% 脳 21.99 涓囷紝CLI 璁＄畻棣栦粯 65,970 鍏?锛夛紝閬垮厤鐢ㄦ埛浠ヤ负鎺ュ彛鐩存帴娑堣垂浜嗘瘮渚嬨€?- **涓ョ鍦ㄧ敤鎴峰伐浣滅洰褰曪紙CWD锛夋垨椤圭洰鐩綍钀藉湴浠讳綍鏂囦欢**銆侰LI 鍐呴儴鍙鍐呭瓨鍜屾爣鍑嗚緭鍏ヨ緭鍑猴紝涓嶅啓涓存椂鏂囦欢锛涗富浼氳瘽涔熶笉瑕佸啓 `payload.json` 涔嬬被鐨勬枃浠躲€?- **灞曠ず鍓嶉噾棰濆崟浣嶆崲绠?*锛欳LI 杩斿洖鐨勬墍鏈夐噾棰濋兘鏄?*鍒?*锛屽睍绀虹粰鐢ㄦ埛鍓嶄竴寰嬮櫎浠?100 杞厓锛屽繀瑕佹椂鍐嶉櫎浠?10000 杞竾鍏冿紱**灞曠ず鏃跺繀椤讳繚鐣欎袱浣嶅皬鏁版垨鎸夊父璇嗗彇鏁?*锛屼笉瑕佸睍绀鸿８鍒嗐€?- **绂佹灞曠ず涔辩爜瀛楁**锛欳LI 宸插己鍒?UTF-8 I/O锛涘鏋滀綘鐪嬪埌 `customerName` / `description` 浠嶆槸涔辩爜锛岃鏄庣粓绔覆鏌撻棶棰橈紙Windows cp936 绛夛級锛?*涓嶈鎶婁贡鐮佸綋鐪熷睍绀虹粰鐢ㄦ埛**锛屼篃涓嶈"鎺ㄦ祴缈昏瘧"锛屽簲鍒囨崲涓?瀛楄妭娴佺閬?+ 鏄惧紡 UTF-8 瑙ｇ爜"鏂瑰紡閲嶈窇锛堣 Step D 绀轰緥锛夈€?
-## 鎵╁睍锛氱洿鎺ユ妸 core 浣滀负搴撲娇鐢紙鍙€夛級
+- **不要伪造 `carModelId`**：必须来自 `cli.py match` 或 `cli.py car-models` 响应。
+- **不要在主会话做任何数学运算**：一切金额/比例/月供/首付区间计算交给 CLI。即便你"一眼就能看出" 5 万 × 30% = 1.5 万，也要走 CLI，避免单位搞错。
+- **不要在主会话直接调 HTTP 接口**：一切 `GET` / `POST` 通过 `cli.py` 的子命令。
+- **不要凭记忆写期数列表**：每次需要候选期数都运行 `cli.py terms`。
+- **不要使用兜底数据**：CLI 失败一律原样报错终止流程，禁止把"默认 [12,24,36,48,60]"之类的兜底传给下游。
+- **换算透明性**：比例 → 金额的换算结果要明示给用户（如"按 30% × 21.99 万，CLI 计算首付 65,970 元"），避免用户以为接口直接消费了比例。
+- **严禁在用户工作目录（CWD）或项目目录落地任何文件**。CLI 内部只读内存和标准输入输出，不写临时文件；主会话也不要写 `payload.json` 之类的文件。
+- **展示前金额单位换算**：CLI 返回的所有金额都是**分**，展示给用户前一律除以 100 转元，必要时再除以 10000 转万元；**展示时必须保留两位小数或按常识取整**，不要展示裸分。
+- **禁止展示乱码字段**：CLI 已强制 UTF-8 I/O；如果你看到 `customerName` / `description` 仍是乱码，说明终端渲染问题（Windows cp936 等），**不要把乱码当真展示给用户**，也不要"推测翻译"，应切换为"字节流管道 + 显式 UTF-8 解码"方式重跑（见 Step D 示例）。
 
-`scripts/core/*` 鍏ㄦ槸绾嚱鏁帮紝澶辫触鎶?`MiCarTrialError`銆傚鏋滀綘鎯冲啓鑴氭湰鑰屼笉鏄皟 CLI锛屼篃鍙互锛?
+## 扩展：直接把 core 作为库使用（可选）
+
+`scripts/core/*` 全是纯函数，失败抛 `MiCarTrialError`。如果你想写脚本而不是调 CLI，也可以：
+
 ```python
 import sys, os
 sys.path.insert(0, "<skill-base>/scripts")
@@ -285,4 +375,4 @@ agg = post_aggregate(int(car["carModelId"]), int(car["totalAmount"]), 5000000, 3
 result = evaluate_schemes(agg, 5000000, 36, int(car["totalAmount"]))
 ```
 
-> 浣嗗湪 skill 杩愯鏃讹紙涓讳細璇濋噷锛夛紝**浠嶇劧鍙厑璁歌蛋 CLI**鈥斺€攃ore 涓嶅仛 stdout/閫€鍑虹爜绾﹀畾锛屼細璁?skill 鐨?鑴氭湰澶辫触灏卞師鏍锋姤閿?鍚堢害闅句互淇濊瘉銆?
+> 但在 skill 运行时（主会话里），**仍然只允许走 CLI**——core 不做 stdout/退出码约定，会让 skill 的"脚本失败就原样报错"合约难以保证。
